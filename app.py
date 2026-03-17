@@ -10,7 +10,7 @@ app.secret_key = config.secret_key
 
 @app.route("/")
 def index():
-    return "Review app"
+    return render_template("index.html")
 
 @app.route("/register")
 def register():
@@ -52,7 +52,7 @@ def login():
         else:
             return "VIRHE: väärä tunnus tai salasana"
 
-    @app.route("/logout")
-    def logout():
-        del session["username"]
-        return redirect("/")
+@app.route("/logout")
+def logout():
+    del session["username"]
+    return redirect("/")
