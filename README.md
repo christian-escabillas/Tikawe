@@ -1,4 +1,4 @@
-# Tikawe
+# Reviews
 
 Sovelluksen perusvaatimukset ovat:
 
