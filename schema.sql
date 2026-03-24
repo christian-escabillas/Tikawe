@@ -15,7 +15,7 @@ CREATE TABLE review (
     title TEXT,
     thoughts TEXT,
     rating INTEGER,
-    user_id INTEGER REFERENCES users,
+    user_id INTEGER REFERENCES users(id),
     item_id INTEGER REFERENCES item
 );
 
@@ -41,4 +41,12 @@ CREATE TABLE song (
     id INTEGER PRIMARY KEY,
     song_title TEXT,
     singer TEXT
+);
+
+CREATE TABLE comments (
+    id INTEGER PRIMARY KEY,
+    review_id INTEGER REFERENCES review,
+    user_id INTEGER REFERENCES users,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    comment TEXT
 );

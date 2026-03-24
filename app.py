@@ -10,7 +10,19 @@ app.secret_key = config.secret_key
 
 @app.route("/")
 def index():
-    return render_template("index.html")
+    result = db.query("""
+        SELECT r.id, 
+                r.title,
+                u.username,
+                COUNT(c.id) AS comment_count,
+                COALESCE(MAX(c.created_at), 'No comments yet') AS last_comment
+        FROM review r
+        JOIN users u ON r.user_id = u.id
+        LEFT JOIN comments c ON r.id = c.review_id
+        GROUP BY r.id, r.title, u.username
+        ORDER BY last_comment DESC""")
+    
+    return render_template("index.html", review=result)
 
 @app.route("/new_item")
 def new_item():
