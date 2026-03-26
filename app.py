@@ -1,6 +1,6 @@
 import sqlite3
 from flask import Flask
-from flask import redirect, render_template, request, session
+from flask import redirect, render_template, request, session, abort
 from werkzeug.security import generate_password_hash, check_password_hash
 import config
 import db
@@ -80,6 +80,31 @@ def create_review():
 
 
     return redirect("/")
+
+@app.route("/review/<int:review_id>")
+def show_review(review_id):
+    sql = """
+        SELECT r.id,
+            r.title,
+            r.thoughts,
+            r.rating,
+            r.user_id,
+            r.item_id,
+            u.username,
+            i.title AS item_title
+        FROM review r
+        JOIN users u ON r.user_id = u.id
+        JOIN item i ON r.item_id = i.id
+        WHERE r.id = ?
+    """
+    reviews = db.query(sql, [review_id])
+
+    if len(reviews) == 0:
+        abort(404)
+
+    review = reviews[0]
+
+    return render_template("review.html", review=review)
 
 @app.route("/register")
 def register():
