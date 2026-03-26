@@ -16,7 +16,7 @@ CREATE TABLE review (
     thoughts TEXT,
     rating INTEGER,
     user_id INTEGER REFERENCES users(id),
-    item_id INTEGER REFERENCES item
+    item_id INTEGER REFERENCES item(id)
 );
 
 CREATE TABLE movie (

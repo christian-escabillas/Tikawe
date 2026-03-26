@@ -6,31 +6,37 @@
 </head>
 
 <body>
-  <h1>New Review</h1>
-  <form action="/create_item" method="post">
+
+  <h1>{{ category_name|capitalize }} Review</h1>
+
+  <form action="/create_review" method="post">
+
+    <input type="hidden" name="item_type" value="{{ category_name }}">
 
     <p>
-      Title: <br />
+      {{ category_name|capitalize }} title: <br>
+      <input type="text" name="item_title" />
+    </p>
+
+    <p>
+      Review Title: <br />
       <input type="text" name="title" />
     </p>
+
     <p>
       Thoughts: <br />
       <textarea name="thoughts" rows="10" cols="40"></textarea>
     </p>
+
     <p>
       Rating: <br />
-     <input type="text" name="Rating" size="10"/>
+      <input type="number" name="rating" min="1" max="5"/>
     </p>
-      Item: <br>
-      <select name="item_id">
-        {% for item in items %}
-         <option value="{{ item.id }}">{{ item.title }}</option>
-        {% endfor %}
-      </select><br><br>
 
     <input type="submit" value="Submit review" />
 
   </form>
+
 </body>
 
 </html>

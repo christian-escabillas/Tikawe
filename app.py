@@ -42,25 +42,44 @@ def create_item():
 
     return redirect("/")
 
-@app.route("/new_review")
-def new_review():
-    items = db.query("SELECT id, title FROM item")
-    return render_template("new_review.html", items=items)
+@app.route("/new_review/<category_name>")
+def new_review(category_name):
+    items = db.query("SELECT id, title FROM item WHERE item_type = ?", [category_name])
+    return render_template("new_review.html", items=items, category_name=category_name)
 
 @app.route("/create_review", methods=["POST"])
 def create_review():
     title = request.form["title"]
     thoughts = request.form["thoughts"]
     rating = request.form["rating"]
-    item_id = request.form["item_id"]
+    item_title = request.form["item_title"].strip()
+    item_type = request.form["item_type"]
     user_id = session["user_id"]
 
-    sql = "INSERT INTO review (title, thoughts, rating, user_id, item_id) VALUES (?, ?, ?, ?, ?)"
-    db.execute(sql, [title, thoughts, rating, user_id, item_id])
-    
+    item = db.query(
+        "SELECT id FROM item WHERE LOWER(title) = LOWER(?) AND item_type = ?",
+        [item_title, item_type]
+    )
+
+    if item:
+        item_id = item[0]["id"]
+    else:
+        db.execute(
+            "INSERT INTO item (title, item_type) VALUES (?, ?)",
+            [item_title, item_type]
+        )
+        item_id = db.query("SELECT last_insert_rowid() AS id")[0]["id"]
+
+    db.execute(
+        """
+        INSERT INTO review (title, thoughts, rating, user_id, item_id)
+        VALUES (?, ?, ?, ?, ?)
+        """,
+        [title, thoughts, rating, user_id, item_id]
+    )
+
+
     return redirect("/")
-
-
 
 @app.route("/register")
 def register():
@@ -94,9 +113,12 @@ def login():
         password = request.form["password"]
         
         sql = "SELECT id, password_hash FROM users WHERE username = ?"
-        result = db.query(sql, [username])[0]
-        user_id = result["id"]
-        password_hash =  result["password_hash"]
+        result = db.query(sql, [username])
+        if len(result) == 0:
+            return "VIRHE: väärä tunnus tai salasana"
+        user = result[0]
+        user_id = user["id"]
+        password_hash = user["password_hash"]
 
         if check_password_hash(password_hash, password):
             session["user_id"] = user_id
